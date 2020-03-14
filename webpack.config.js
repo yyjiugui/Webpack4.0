@@ -9,7 +9,7 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: 'main.js'
+    filename: 'index.js'
   },
   module: {
     rules: [
@@ -33,7 +33,7 @@ module.exports = {
   }, // watch: true // 也可以在配置文件中配置，开启监视模式。开发中不用，因为缺点是不能自动刷新浏览器
   devServer: {
     // 配置文件中配置dev-server
-    // contentBase: './public', // 指定用户可访问的磁盘上的文件目录 把指定的根目录作为目录,类似于静态资源托管。
+    contentBase: './public', // 以上配置告知 webpack-dev-server，在 localhost:8080 下建立服务，将 dist 目录下的文件，作为可访问文件。
     // 默认访问public目录下的index.html
     hot: true, // 开启热更新
     port: 3000, //指定端口号
@@ -42,12 +42,11 @@ module.exports = {
   },
   devtool: 'inline-source-map',
   plugins: [
-    // 这个插件会在内存中默认生成一个全新html文件，通过制定template模板制定生成想要的html文件
+    // 这个插件默认生成一个全新html文件(在内存中存在 或者执行npm run build  就是打包之后的index.html文件)，public/index/html文件是一个会被html-webpack-plugin 处理的模板(Vue-cli内容)
+    // https://www.webpackjs.com/guides/output-management/#%E8%AE%BE%E5%AE%9A-htmlwebpackplugin webpack该插件详细解释
     new HtmlWebpackPlugin({
-      // ,现在用户打开浏览器默认访问的就是这个html文件,而且自动的引入了打包好的js文件
+      // 现在用户打开浏览器默认访问的就是这个html文件,而且自动的引入了打包好的js文件
       title: '这是html插件',
-      // filename: 'myindex.html', // 使用npm run build 生成名字为index.html的文件浏览器会默认打开
-      // template: './public/index.html'  模板html文件 这里都是在内存中生成的html文件
       filename: 'index.html',
       template: './public/index.html'
     }),
