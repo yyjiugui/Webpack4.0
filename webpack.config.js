@@ -33,8 +33,8 @@ module.exports = {
   }, // watch: true // 也可以在配置文件中配置，开启监视模式。开发中不用，因为缺点是不能自动刷新浏览器
   devServer: {
     // 配置文件中配置dev-server
-    contentBase: './public', // 以上配置告知 webpack-dev-server，在 localhost:8080 下建立服务，将 dist 目录下的文件，作为可访问文件。
-    // 默认访问public目录下的index.html
+    // contentBase: './public', // 以上配置告知 webpack-dev-server，在 localhost:8080 下建立服务，将 public/index.html文件，作为可访问文件。
+    // 默认访问public目录下的index.html 使用HtmlWebpackPlugin插件后把index.html文件也放进了内存 所以这个需要了 这个可以作为学习使用
     hot: true, // 开启热更新
     port: 3000, //指定端口号
     open: true,
