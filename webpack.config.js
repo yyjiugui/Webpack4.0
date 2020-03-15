@@ -13,18 +13,52 @@ module.exports = {
   },
   module: {
     rules: [
+      // webpack只理解JavaScript文件
       {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        test: /\.css$/, // webpack在读取loader时 从右到左以管道的方式链式调用
+        use: ['style-loader', 'css-loader'] // css-loader解析css文件 style-loader将解析后的结果 放到html中 使其生效
       },
       {
+        test: /\.less$/,
+        use: ['style-loader', 'css-loader', 'less-loader']
+        // 通过less-loader转化为css文件 ---> css-loader再处理less-loader转化为的css文件 --> 然后style-loader将解析后的结果 放到html中
+      },
+      {
+        // 处理图片 url路径形式引入的图片 *** url-loader封装了file-loader 具有比file-loader更高级的功能 ***
         test: /\.(png|jgp|gif)$/,
-        use: ['file-loader']
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              // limit表示如果图片大于 5kb 就以路径形式 (开发环境 把图片也放进了内存 localhost:8080/xxxxx.png展示 所以默认采用了hash算法处理生成唯一标识 避免图片重名)
+              // 否则就用base64编码 缺点: 占用空间 比原图片多30%空间 优点: 少发一次图片资源请求 所以图片小的话就是 base64编码
+              limit: 5 * 1024, // 建议5kb为边界
+              // 执行 npm run build默认打包出来的资源文件缺点: 1、打包在了项目根目录中 2、文件名字是哈希值
+              outputPath: 'img', // 解决打包目录: 参考vue-cli打包出来的目录
+              name: '[name]-[hash:5].[ext]' // 解决打包之后的文件名全部是hash值
+              /*
+							name: 保留原来的文件名字
+							hash：使用hash算法生成5位hash值
+							ext: 保留原来的后缀名字
+							-: name与hash中间用短 - 线间隔开
+							*/
+            }
+          }
+        ]
       },
       {
+        // 处理字体图标
         test: /\.(woff|woff2|ttf|svg|eot)$/,
-        use: ['file-loader']
-      },
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: 'fonts',
+              name: '[name]-[hash:5].[ext]'
+            }
+          }
+        ]
+      }, // 处理单文件组件
       {
         test: /\.vue$/,
         use: ['vue-loader']
@@ -34,7 +68,7 @@ module.exports = {
   devServer: {
     // 配置文件中配置dev-server
     // contentBase: './public', // 以上配置告知 webpack-dev-server，在 localhost:8080 下建立服务，将 public/index.html文件，作为可访问文件。
-    // 默认访问public目录下的index.html 使用HtmlWebpackPlugin插件后把index.html文件也放进了内存 所以这个需要了 这个可以作为学习使用
+    // 默认访问public目录下的index.html 使用HtmlWebpackPlugin插件后把index.html文件也放进了内存 所以不需要这个配置了 只为webpack-dev-server学习使用
     hot: true, // 开启热更新
     port: 3000, //指定端口号
     open: true,
@@ -46,7 +80,7 @@ module.exports = {
     // https://www.webpackjs.com/guides/output-management/#%E8%AE%BE%E5%AE%9A-htmlwebpackplugin webpack该插件详细解释
     new HtmlWebpackPlugin({
       // 现在用户打开浏览器默认访问的就是这个html文件,而且自动的引入了打包好的js文件
-      title: '这是html插件',
+      title: 'webpack',
       filename: 'index.html',
       template: './public/index.html'
     }),

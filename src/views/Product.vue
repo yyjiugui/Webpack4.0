@@ -1,6 +1,6 @@
 <template>
   <div>
-    <router-view></router-view>
+    <h3>产品列表组件</h3>
   </div>
 </template>
 
@@ -8,4 +8,5 @@
 export default {}
 </script>
 
-<style></style>
+<style>
+</style>
