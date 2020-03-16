@@ -28,9 +28,9 @@ module.exports = {
         test: /\.(png|jgp|gif)$/,
         use: [
           {
-            loader: 'url-loader',
+            loader: 'url-loader', // 允许你有条件地将文件转换为内联的 base-64 URL (当文件小于给定的阈值)，这会减少小文件的 HTTP 请求数。
             options: {
-              // limit表示如果图片大于 5kb 就以路径形式 (开发环境 把图片也放进了内存 localhost:8080/xxxxx.png展示 所以默认采用了hash算法处理生成唯一标识 避免图片重名)
+              // limit表示如果图片大于 5kb 就以路径形式 (开发环境 把图片也放进了内存 localhost:8080/xxxxx.png展示 所以默认 使用file-loader采用了hash算法处理生成唯一标识 避免图片重名)
               // 否则就用base64编码 缺点: 占用空间 比原图片多30%空间 优点: 少发一次图片资源请求 所以图片小的话就是 base64编码
               limit: 5 * 1024, // 建议5kb为边界
               // 执行 npm run build默认打包出来的资源文件缺点: 1、打包在了项目根目录中 2、文件名字是哈希值
@@ -51,7 +51,7 @@ module.exports = {
         test: /\.(woff|woff2|ttf|svg|eot)$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: 'file-loader', // 可以指定要复制和放置资源文件的位置，以及如何使用版本哈希命名以获得更好的缓存。
             options: {
               outputPath: 'fonts',
               name: '[name]-[hash:5].[ext]'
@@ -62,6 +62,15 @@ module.exports = {
       {
         test: /\.vue$/,
         use: ['vue-loader']
+      },
+      {
+        test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
       }
     ]
   }, // watch: true // 也可以在配置文件中配置，开启监视模式。开发中不用，因为缺点是不能自动刷新浏览器
