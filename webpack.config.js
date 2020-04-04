@@ -3,6 +3,8 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 // VueLoader插件
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+// CopyWebpackPlugin
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 // 使用配置 指定入口和出口;
 module.exports = {
   mode: 'development',
@@ -66,11 +68,16 @@ module.exports = {
       {
         test: /\.js$/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env']
-          }
-        }
+          loader: 'babel-loader'
+          // options: { // 把babel的配置放到单独的配置文件中
+          //   presets: ['@babel/preset-env'],
+          //   plugins: [
+          //     '@babel/plugin-proposal-class-properties',
+          //     '@babel/plugin-transform-runtime'
+          //   ]
+          // }
+        },
+        exclude: /(node_modules|bower_components)/
       }
     ]
   }, // watch: true // 也可以在配置文件中配置，开启监视模式。开发中不用，因为缺点是不能自动刷新浏览器
@@ -78,7 +85,7 @@ module.exports = {
     // 配置文件中配置dev-server
     // contentBase: './public', // 以上配置告知 webpack-dev-server，在 localhost:8080 下建立服务，将 public/index.html文件，作为可访问文件。
     // 默认访问public目录下的index.html 使用HtmlWebpackPlugin插件后把index.html文件也放进了内存 所以不需要这个配置了 只为webpack-dev-server学习使用
-    hot: true, // 开启热更新
+    hot: true, // 开启 模块热替换
     port: 3000, //指定端口号
     open: true,
     compress: true // 开启zip压缩服务
@@ -93,6 +100,11 @@ module.exports = {
       filename: 'index.html',
       template: './public/index.html'
     }),
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    // 该插件的作用是拷贝目录到指定目录
+    new CopyWebpackPlugin([
+      // {output}/to/file.txt // 把public下面的assets 拷贝到打包后dist目录下的assets目录
+      { from: path.resolve(__dirname, './assets'), to: 'assets' }
+    ])
   ]
 }
