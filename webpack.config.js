@@ -5,6 +5,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 // CopyWebpackPlugin
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+// 处理html，支持直接在html中使用img标签加载图片
+const HtmlWithImgLoader = require('html-withimg-loader')
+
 // 使用配置 指定入口和出口;
 module.exports = {
   mode: 'development',
@@ -34,7 +37,7 @@ module.exports = {
             options: {
               // limit表示如果图片大于 5kb 就以路径形式 (开发环境 把图片也放进了内存 localhost:8080/xxxxx.png展示 所以默认 使用file-loader采用了hash算法处理生成唯一标识 避免图片重名)
               // 否则就用base64编码 缺点: 占用空间 比原图片多30%空间 优点: 少发一次图片资源请求 所以图片小的话就是 base64编码
-              limit: 5 * 1024, // 建议5kb为边界
+              limit: 2 * 1024, // 建议5kb为边界
               // 执行 npm run build默认打包出来的资源文件缺点: 1、打包在了项目根目录中 2、文件名字是哈希值
               outputPath: 'img', // 解决打包目录: 参考vue-cli打包出来的目录
               name: '[name]-[hash:5].[ext]' // 解决打包之后的文件名全部是hash值
@@ -78,6 +81,10 @@ module.exports = {
           // }
         },
         exclude: /(node_modules|bower_components)/
+      },
+      {
+        test: /\.(htm|html)$/,
+        loader: 'html-withimg-loader'
       }
     ]
   }, // watch: true // 也可以在配置文件中配置，开启监视模式。开发中不用，因为缺点是不能自动刷新浏览器
@@ -103,8 +110,9 @@ module.exports = {
     new VueLoaderPlugin(),
     // 该插件的作用是拷贝目录到指定目录
     new CopyWebpackPlugin([
-      // {output}/to/file.txt // 把public下面的assets 拷贝到打包后dist目录下的assets目录
+      // 把public下面的assets图片资源 拷贝到打包后dist下assets目录 (html引入的资源默认不会经过webpack打包处理)
+      // 对于视频和音频资源没有对应的loader处理这些文件 可以使用这个插件拷贝到 dist目录下
       { from: path.resolve(__dirname, './assets'), to: 'assets' }
-    ])
+    ]) //使用插件可以将html中通过img标签资源经过webpack处理打包到img目录下
   ]
 }
