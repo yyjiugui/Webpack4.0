@@ -5,8 +5,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 // CopyWebpackPlugin
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-// 处理html，支持直接在html中使用img标签加载图片
-const HtmlWithImgLoader = require('html-withimg-loader')
+
+const webpack = require('webpack')
 
 // 使用配置 指定入口和出口;
 module.exports = {
@@ -14,18 +14,18 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: 'index.js'
+    filename: 'index.js',
   },
   module: {
     rules: [
       // webpack只理解JavaScript文件
       {
         test: /\.css$/, // webpack在读取loader时 从右到左以管道的方式链式调用
-        use: ['style-loader', 'css-loader'] // css-loader解析css文件 style-loader将解析后的结果 放到html中 使其生效
+        use: ['style-loader', 'css-loader'], // css-loader解析css文件 style-loader将解析后的结果 放到html中 使其生效
       },
       {
         test: /\.less$/,
-        use: ['style-loader', 'css-loader', 'less-loader']
+        use: ['style-loader', 'css-loader', 'less-loader'],
         // 通过less-loader转化为css文件 ---> css-loader再处理less-loader转化为的css文件 --> 然后style-loader将解析后的结果 放到html中
       },
       {
@@ -40,16 +40,16 @@ module.exports = {
               limit: 2 * 1024, // 建议5kb为边界
               // 执行 npm run build默认打包出来的资源文件缺点: 1、打包在了项目根目录中 2、文件名字是哈希值
               outputPath: 'img', // 解决打包目录: 参考vue-cli打包出来的目录
-              name: '[name]-[hash:5].[ext]' // 解决打包之后的文件名全部是hash值
+              name: '[name]-[hash:5].[ext]', // 解决打包之后的文件名全部是hash值
               /*
 							name: 保留原来的文件名字
 							hash：使用hash算法生成5位hash值
 							ext: 保留原来的后缀名字
 							-: name与hash中间用短 - 线间隔开
 							*/
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
       {
         // 处理字体图标
@@ -59,19 +59,19 @@ module.exports = {
             loader: 'file-loader', // 可以指定要复制和放置资源文件的位置，以及如何使用版本哈希命名以获得更好的缓存。
             options: {
               outputPath: 'fonts',
-              name: '[name]-[hash:5].[ext]'
-            }
-          }
-        ]
+              name: '[name]-[hash:5].[ext]',
+            },
+          },
+        ],
       }, // 处理单文件组件
       {
         test: /\.vue$/,
-        use: ['vue-loader']
+        use: ['vue-loader'],
       },
       {
         test: /\.js$/,
         use: {
-          loader: 'babel-loader'
+          loader: 'babel-loader',
           // options: { // 把babel的配置放到单独的配置文件中
           //   presets: ['@babel/preset-env'],
           //   plugins: [
@@ -80,13 +80,25 @@ module.exports = {
           //   ]
           // }
         },
-        exclude: /(node_modules|bower_components)/
+        exclude: /(node_modules|bower_components)/,
       },
       {
+        // 处理html，支持直接在html中使用img标签加载图片
         test: /\.(htm|html)$/,
-        loader: 'html-withimg-loader'
-      }
-    ]
+        loader: 'html-withimg-loader',
+      },
+      // {
+      //   /*expose-loader的使用
+      // 	require.resolve() 用来获取模块的绝对路径 将jquery用$符号挂载到全局window对象上;
+      // 	这样每个模块的闭包空间都能使用到$了。
+      // 	*/
+      //   test: require.resolve('jquery'),
+      //   use: {
+      //     loader: 'expose-loader',
+      //     options: '$',
+      //   },
+      // },
+    ],
   }, // watch: true // 也可以在配置文件中配置，开启监视模式。开发中不用，因为缺点是不能自动刷新浏览器
   devServer: {
     // 配置文件中配置dev-server
@@ -95,7 +107,7 @@ module.exports = {
     hot: true, // 开启 模块热替换
     port: 3000, //指定端口号
     open: true,
-    compress: true // 开启zip压缩服务
+    compress: true, // 开启zip压缩服务
   },
   devtool: 'inline-source-map',
   plugins: [
@@ -105,14 +117,19 @@ module.exports = {
       // 现在用户打开浏览器默认访问的就是这个html文件,而且自动的引入了打包好的js文件
       title: 'webpack',
       filename: 'index.html',
-      template: './public/index.html'
+      template: './public/index.html',
     }),
     new VueLoaderPlugin(),
     // 该插件的作用是拷贝目录到指定目录
     new CopyWebpackPlugin([
       // 把public下面的assets图片资源 拷贝到打包后dist下assets目录 (html引入的资源默认不会经过webpack打包处理)
-      // 对于视频和音频资源没有对应的loader处理这些文件 可以使用这个插件拷贝到 dist目录下
-      { from: path.resolve(__dirname, './assets'), to: 'assets' }
-    ]) //使用插件可以将html中通过img标签资源经过webpack处理打包到img目录下
-  ]
+      // 对于视频和音频资源 如果不使用对应的loader 可以使用这个插件拷贝到dist目录下
+      { from: path.resolve(__dirname, './assets'), to: 'assets' },
+    ]), // 将库自动加载到每个模块
+    new webpack.ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery',
+      jQuerytest: 'jquery',
+    }),
+  ],
 }

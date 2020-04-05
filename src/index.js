@@ -9,8 +9,10 @@ import './testbabel/index.js'
 
 console.log(process.env)
 
+jQuerydev('body').css('backgroundColor', 'skyblue')
+
 new Vue({
   el: '#app',
   router,
-  render: h => h(App)
+  render: (h) => h(App),
 })
