@@ -122,9 +122,9 @@ module.exports = {
     new VueLoaderPlugin(),
     // 该插件的作用是拷贝目录到指定目录
     new CopyWebpackPlugin([
-      // 把public下面的assets图片资源 拷贝到打包后dist下assets目录 (html引入的资源默认不会经过webpack打包处理)
+      // 把public下面的assets图片资源 拷贝到打包后dist下assets目录 (html文件中引入的资源默认不会经过webpack打包处理)
       // 对于视频和音频资源 如果不使用对应的loader 可以使用这个插件拷贝到dist目录下
-      { from: path.resolve(__dirname, './assets'), to: 'assets' },
+      { from: path.resolve(__dirname, './public/assets'), to: 'assets' },
     ]), // 将库自动加载到每个模块
     new webpack.ProvidePlugin({
       $: 'jquery',

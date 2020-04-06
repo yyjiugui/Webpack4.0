@@ -7,10 +7,6 @@ import './assets/font/iconfont.css'
 import './assets/index.json'
 import './testbabel/index.js'
 
-console.log(process.env)
-
-jQuerydev('body').css('backgroundColor', 'skyblue')
-
 new Vue({
   el: '#app',
   router,
